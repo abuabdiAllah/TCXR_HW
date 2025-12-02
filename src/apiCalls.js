@@ -1,19 +1,23 @@
 export const fetchStudents = async () => {
-  // 1. url path http://localhost:3000/api/students
-  // return studentList
+  const response = await fetch('/api/students');
+  if (!response.ok) {
+    throw new Error('Failed to fetch students');
+  }
+  return await response.json();
 }
 
 export const fetchInstitutionList = async () => {
-  // 2. url path api/institutions
-  // return institutionlist
+  const response = await fetch('/api/institutions');
+  if (!response.ok) {
+    throw new Error('Failed to fetch institutions');
+  }
+  return await response.json();
 }
 
 export const fetchInstitutionStudents = async (institutionName) => {
-  // 3. what would you use for the url path here?
-  return []
-}
-
-export const fetchStudentData = async (studentName) => {
-  // 4 url path api/studentRoster
-  return []
+  const response = await fetch(`/api/institution/studentRoster?institution=${encodeURIComponent(institutionName)}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch institution students');
+  }
+  return await response.json();
 }

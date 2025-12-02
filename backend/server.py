@@ -1,5 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
 
 SERVER_PORT = 3080
 # Load JSON files at startup
@@ -31,18 +32,39 @@ class SimpleServer(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path
         print(path)
-        match(path):
-            case "/api/students":
-                self._set_headers()
-                self.wfile.write(json.dumps(student_list).encode("utf-8"))
+        
+        # Parse URL to get path and query parameters
+        parsed_path = urlparse(path)
+        path_only = parsed_path.path
+        query_params = parse_qs(parsed_path.query)
+        
+        if path_only == "/api/students":
+            self._set_headers()
+            self.wfile.write(json.dumps(student_list).encode("utf-8"))
 
-            case "/api/institutions":
-                self._set_headers()
-                self.wfile.write(json.dumps(institution_list).encode("utf-8"))
+        elif path_only == "/api/institutions":
+            self._set_headers()
+            self.wfile.write(json.dumps(institution_list).encode("utf-8"))
 
-            case _:
-                self._set_headers(404)
-                self.wfile.write(json.dumps({"error": "Not Found"}).encode("utf-8"))
+        elif path_only == "/api/institution/studentRoster":
+            # Get institution name from query parameter
+            institution_name = query_params.get("institution", [None])[0]
+            
+            if not institution_name:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Institution parameter is required"}).encode("utf-8"))
+            else:
+                # Filter students by institution
+                filtered_students = [
+                    student for student in student_list 
+                    if student.get("institution") == institution_name
+                ]
+                self._set_headers()
+                self.wfile.write(json.dumps(filtered_students).encode("utf-8"))
+
+        else:
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Not Found"}).encode("utf-8"))
 
     # ---------------------------
     # Handle POST routes

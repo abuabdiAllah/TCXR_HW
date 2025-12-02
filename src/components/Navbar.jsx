@@ -19,6 +19,9 @@ export default function Navbar() {
         <NavLink className="nav-link" to="/institutions">
           Institutions
         </NavLink>
+        <NavLink className="nav-link" to="/dashboard">
+          Dashboard
+        </NavLink>
       </div>
     </nav>
   );
